@@ -46,15 +46,21 @@ L.Control.Geocoder.Nominatim = L.Class.extend({
             format: 'json'
         }, this.options.reverseQueryParams), function(data) {
             var result = [],
+                address = {},
                 loc;
+
+            if ( data.address )
+                address = data.address;
 
             if (data && data.lat && data.lon) {
                 loc = L.latLng(data.lat, data.lon);
                 result.push({
                     name: data.display_name,
                     center: loc,
-                    bounds: L.latLngBounds(loc, loc)
+                    bounds: L.latLngBounds(loc, loc),
+                    address: address
                 });
+
             }
 
             cb.call(context, result);
