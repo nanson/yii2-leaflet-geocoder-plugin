@@ -174,7 +174,8 @@
             '<img src="' + result.icon + '"/>' :
                 '') +
             result.name + '</a>';
-            L.DomEvent.addListener(li, 'click', function clickHandler() {
+            L.DomEvent.addListener(li, 'click', function clickHandler(event) {
+                L.DomEvent.preventDefault(event);
                 this._geocodeResultSelected(result);
             }, this);
 

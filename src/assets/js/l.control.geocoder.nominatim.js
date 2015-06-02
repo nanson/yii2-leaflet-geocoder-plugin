@@ -11,22 +11,29 @@ L.Control.Geocoder.Nominatim = L.Class.extend({
 
     geocode: function(query, cb, context) {
         L.Control.Geocoder.jsonp(this.options.serviceUrl + 'search/', L.extend({
-            q: query,
-            limit: 5,
-            format: 'json'
-        }, this.options.geocodingQueryParams),
+                q: query,
+                limit: 5,
+                format: 'json'
+            }, this.options.geocodingQueryParams),
             function(data) {
                 var results = [];
                 for (var i = data.length - 1; i >= 0; i--) {
                     var bbox = data[i].boundingbox;
+                    var address = {};
+
+                    if ( data[i].address )
+                        address = data[i].address;
+
                     for (var j = 0; j < 4; j++) bbox[j] = parseFloat(bbox[j]);
                     results[i] = {
                         icon: data[i].icon,
                         name: data[i].display_name,
                         bbox: L.latLngBounds([bbox[0], bbox[2]], [bbox[1], bbox[3]]),
-                        center: L.latLng(data[i].lat, data[i].lon)
+                        center: L.latLng(data[i].lat, data[i].lon),
+                        address: address
                     };
                 }
+
                 cb.call(context, results);
             }, this, 'json_callback');
     },
@@ -39,15 +46,21 @@ L.Control.Geocoder.Nominatim = L.Class.extend({
             format: 'json'
         }, this.options.reverseQueryParams), function(data) {
             var result = [],
+                address = {},
                 loc;
+
+            if ( data.address )
+                address = data.address;
 
             if (data && data.lat && data.lon) {
                 loc = L.latLng(data.lat, data.lon);
                 result.push({
                     name: data.display_name,
                     center: loc,
-                    bounds: L.latLngBounds(loc, loc)
+                    bounds: L.latLngBounds(loc, loc),
+                    address: address
                 });
+
             }
 
             cb.call(context, result);
